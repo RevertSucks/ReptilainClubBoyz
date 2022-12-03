@@ -1,10 +1,10 @@
 local Mercury = loadstring(game:HttpGet("https://raw.githubusercontent.com/deeeity/mercury-lib/master/src.lua"))()
 local ESP = loadstring(game:HttpGet("https://kiriot22.com/releases/ESP.lua"))()
 local GUI = Mercury:Create{
-    Name = "PartyTime",
+    Name = "Party Time",
     Size = UDim2.fromOffset(600, 400),
     Theme = Mercury.Themes.Dark,
-    Link = "Dark.Life/PartyTime"
+    Link = "dark.life/version1.1"
 }
 local plrtab = GUI:Tab{
 	Name = "Player",
@@ -47,7 +47,7 @@ local function teleport(cframe,usewait)
     game:GetService("ReplicatedStorage").Ragdoll.RagdollMe:FireServer()
     
     if usewait then
-        task.wait(4.4)
+        task.wait(4.3)
     end
     
     for i,v in pairs(char():GetChildren()) do
@@ -105,6 +105,7 @@ local values = {
     ["crazygrip"] = false,
     ["quickp"] = false,
     ["stompaura"] = false,
+    ["proxprompts"] = {}
 }
 
 plrtab:Toggle{Name = "Change Run Upgrade",StartingState = false,Description = "Changes how fast you run",Callback = function(state)
@@ -157,14 +158,21 @@ worldtab:Toggle{Name = "Stomp Aura",StartingState = false,Description = "Autosto
     values["stompaura"] = state
 end}
 worldtab:Toggle{Name = "Use Quick Printers",StartingState = false,Description = ":)",Callback = function(state)
+    if not values["proxprompts"][1] then
+        for i,v in pairs(constants["houses"]) do
+            for _,v2 in pairs(v:GetDescendants()) do
+                if v2:IsA("ProximityPrompt") and v2.ActionText == "Take Money" then
+                    table.insert(values["proxprompts"],v2)
+                end
+            end
+        end
+    end
     values["quickp"] = state
 end}
 worldtab:Keybind{Name = "Quick Printers",Keybind = Enum.KeyCode.E,Description = "Can be used to collect printers thru walls.",Callback = function()
     if not (game:GetService("UserInputService"):GetFocusedTextBox()) and values["quickp"] then
-        for i,v in pairs(game.Workspace:GetDescendants()) do
-            if v:IsA("ProximityPrompt") and v.ActionText == "Take Money" then
-                fireproximityprompt(v)
-            end
+        for i,v in pairs(values["proxprompts"]) do
+            fireproximityprompt(v)
         end
     end
 end}
@@ -217,7 +225,7 @@ guntab:Button{Name = "Dupe Gun/Save Gun",Description = "Gun MUST be in 3 slot (e
     end
 end}
 
-guntab:Toggle{Name = "Crazy Grip",StartingState = false,Description = "Requires dupe gun to be ran first, actually makes harder to shoot.",Callback = function(state)
+guntab:Toggle{Name = "Grip Forcefield",StartingState = false,Description = "Requires dupe gun to be ran first, actually makes harder to shoot.",Callback = function(state)
     values["crazygrip"] = state
 end}
 
