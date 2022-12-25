@@ -1,6 +1,13 @@
 # loadstring:
 ```
-https://scriptblox.com/script/Dark-Life-Beta-Overpowered-Script-7249
+local E = "RevertSucks"
+local x = "ReptilainClubBoyz"
+local x_ = "main"
+local e = "DarkLife"
+local n = "lua"
+local Exxen = "https://raw.githubusercontent.com"..("/%s/%s/%s/%s.%s"):format(E,x,x_,e,n)
+
+loadstring(game:HttpGet(Exxen))()
 ```
 
 # update log (dark life)  
