@@ -4,7 +4,7 @@ local GUI = Mercury:Create{
     Name = "Party Time",
     Size = UDim2.fromOffset(600, 400),
     Theme = Mercury.Themes.Dark,
-    Link = "dark.life/version1.1"
+    Link = "dark.life/version1.2"
 }
 local plrtab = GUI:Tab{
 	Name = "Player",
@@ -23,6 +23,19 @@ local esptab = GUI:Tab{
 	Icon = "rbxassetid://8569322835"
 }
 
+
+GUI:Notification{
+	Title = "Notice",
+	Text = "This script was made by Exxen#0001, do not steal or copy my methods pwease :pleading_face:",
+	Duration = 5,
+	Callback = function() end
+}
+GUI:Notification{
+	Title = "Update!",
+	Text = "Made teleportaion faster ;)",
+	Duration = 10,
+	Callback = function() end
+}
 local constants = {
     ["plr"] = game.Players.LocalPlayer,
     ["houses"] = game:GetService("Workspace").houses:GetChildren(),
@@ -43,19 +56,14 @@ local function char()
     return constants["plr"].Character
 end
 
-local function teleport(cframe,usewait)
-    game:GetService("ReplicatedStorage").Ragdoll.RagdollMe:FireServer()
-    
-    if usewait then
-        task.wait(4.3)
-    end
-    
-    for i,v in pairs(char():GetChildren()) do
-        if v:IsA("MeshPart") then
-            v.CFrame = cframe
-        end
-        char().HumanoidRootPart.CFrame = cframe
-    end
+local function teleport(cframe)
+    local hrp = constants["plr"].Character.HumanoidRootPart
+
+    hrp.Parent = nil
+
+    hrp.CFrame = cframe
+
+    hrp.Parent = char()
 end
 
 local function god()
@@ -139,17 +147,15 @@ plrtab:Toggle{Name = "God2",StartingState = false,Description = "Prevents stompi
 end}
 
 worldtab:Button{Name = "Teleport to Bank",Description = "!!!",Callback = function()
-    teleport(CFrame.new(-340.893005, 3.77489686, -0.235311061, 0.0629784092, 0, -0.998014867, 0, 1, 0, 0.998014867, 0, 0.0629784092),true)
+    teleport(CFrame.new(-340.893005, 3.77489686, -0.235311061, 0.0629784092, 0, -0.998014867, 0, 1, 0, 0.998014867, 0, 0.0629784092))
 end}
 worldtab:Button{Name = "Teleport to Deposit",Description = "!!!",Callback = function()
     local deposit = game.Workspace:FindFirstChild("Deposit")
     local collider = deposit.Collider
-    teleport(collider.CFrame,true)
+    teleport(collider.CFrame)
 end}
-worldtab:Button{Name = "Quick Police",Description = "!!!",Callback = function()
-    teleport(game:GetService("Workspace").PoliceSelector.Collider.CFrame,false)
-    task.wait(.4)
-    fireproximityprompt(game:GetService("Workspace").PoliceSelector.Collider.ProximityPrompt)
+worldtab:Button{Name = "Teleport to Police",Description = "!!!",Callback = function()
+    teleport(game:GetService("Workspace").PoliceSelector.Collider.CFrame)
 end}
 worldtab:Toggle{Name = "Money Grab Aura",StartingState = false,Description = "Autograbs money within a small area around you.",Callback = function(state)
     values["moneyaura"] = state
