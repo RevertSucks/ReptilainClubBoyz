@@ -1,7 +1,21 @@
 _G.thiswasmadebyexxen = true
 
+if (identifyexecutor) then
+    local ex = identifyexecutor()
+    if (ex ~= "Synapse X") then
+            if (ex ~= "ScriptWare") then
+            game.Players.LocalPlayer:kick("Unsupported Executor")
+            return
+        end
+    end
+else
+    game.Players.LocalPlayer:kick("Unsupported Executor")
+end
+
+
 local Mercury = loadstring(game:HttpGet("https://raw.githubusercontent.com/RevertSucks/PartyTime/main/archives/mercury.lua"))()
 local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/RevertSucks/PartyTime/main/archives/kiriot_esp.lua"))()
+    
 local GUI = Mercury:Create{
     Name = "Party Time",
     Size = UDim2.fromOffset(600, 400),
@@ -23,10 +37,20 @@ local plr =  plrService.LocalPlayer
 local toggle = false
 local settings = {}
 -- setting up friend detection
-local friends = syn.request({
-    Url = "https://friends.roblox.com/v1/users/"..plr.UserId.."/friends",
-    Method = "GET"
-})
+
+local friends;
+
+if not (http) then
+    friends = syn.request({
+        Url = "https://friends.roblox.com/v1/users/"..plr.UserId.."/friends",
+        Method = "GET"
+    })
+else
+    friends = http.request({
+        Url = "https://friends.roblox.com/v1/users/"..plr.UserId.."/friends",
+        Method = "GET"
+    })
+end
 
 local mouse = game.Players.LocalPlayer:GetMouse()
 
@@ -37,7 +61,7 @@ GUI:Notification{
 	Callback = function() end
 }
 
-if friends["StatusMessage"] == "OK" then
+if friends["Success"] == true then
     friends = game:GetService("HttpService"):JSONDecode(friends["Body"])["data"]
 end
 
@@ -127,7 +151,7 @@ setreadonly(gmt, false)
 gmt.__namecall = newcclosure(function(self,...)
     local method = getnamecallmethod()
     local args = {...}
-    if tostring(self) == "RemoteEvent" and tostring(method) == "FireServer" and args[1] == "Bullet" and toggle == true and _G.thiswasmadebyexxen == true then
+    if tostring(self) == "RemoteEvent" and tostring(method) == "FireServer" and args[1] == "Bullet" and toggle == true then
         local plr = get_closest()
         if plr then
             args[2] = plr
