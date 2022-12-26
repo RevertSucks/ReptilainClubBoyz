@@ -70,6 +70,9 @@ for i,v in pairs(friends) do
 end
 -- end of friend detection
 
+settings.ignoreFriends = false
+settings.ignoreWallCheck = false
+
 main:Toggle{Name = "Toggle Silent Aim",StartingState = false,Description = nil,Callback = function(state)
 
     toggle = state
