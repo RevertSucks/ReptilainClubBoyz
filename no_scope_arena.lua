@@ -127,7 +127,7 @@ local function get_closest()
     local dist = math.huge
     local closest = nil
     for i,v in next, game.Players:GetPlayers() do
-        if (not table.find(friends,v.Name) or settings.ignoreFriends == false) and v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("Humanoid").Health > 0 and v.Character:FindFirstChild("HumanoidRootPart") then
+        if (settings.ignoreFriends == false or (settings.ignoreFriends == true and not table.find(friends,v.Name))) and v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("Humanoid").Health > 0 and v.Character:FindFirstChild("HumanoidRootPart") then
             local char = v.Character
             local char_pos, onscreen = game.Workspace.CurrentCamera:worldToViewportPoint( char["Head"].Position)
            
