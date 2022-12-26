@@ -127,7 +127,7 @@ setreadonly(gmt, false)
 gmt.__namecall = newcclosure(function(self,...)
     local method = getnamecallmethod()
     local args = {...}
-    if tostring(self) == "RemoteEvent" and tostring(method) == "FireServer" and args[1] == "Bullet" and toggle == true then
+    if tostring(self) == "RemoteEvent" and tostring(method) == "FireServer" and args[1] == "Bullet" and toggle == true and _G.thiswasmadebyexxen == true then
         local plr = get_closest()
         if plr then
             args[2] = plr
