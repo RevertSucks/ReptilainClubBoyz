@@ -1,5 +1,7 @@
+_G.thiswasmadebyexxen = true
+
 local Mercury = loadstring(game:HttpGet("https://raw.githubusercontent.com/deeeity/mercury-lib/master/src.lua"))()
-local ESP = loadstring(game:HttpGet("https://kiriot22.com/releases/ESP.lua"))()
+local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/RevertSucks/PartyTime/main/archives/kiriot_esp.lua"))()
 local GUI = Mercury:Create{
     Name = "Party Time",
     Size = UDim2.fromOffset(600, 400),
