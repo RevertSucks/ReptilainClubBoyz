@@ -31,6 +31,7 @@ local esp = GUI:Tab{
 	Icon = "rbxassetid://8569322835"
 }
 
+local GuiService = game:GetService("GuiService")
 local plrService = game:GetService("Players")
 local plr =  plrService.LocalPlayer
 
@@ -89,6 +90,46 @@ main:Toggle{Name = "Ignore Wall Check",StartingState = false,Description = "Igno
 
     settings.ignoreWallCheck = state
     
+end}
+
+main:Keybind{Name = "Silent Aim Keybind",Keybind = Enum.KeyCode.BackSlash,Description = nil,Callback = function()
+    if toggle == true then
+        toggle = false
+        GUI:Notification{
+            Title = "Keybind Update",
+            Text = "Set Silent Aim To False",
+            Duration = 2.5,
+            Callback = function() end
+        }
+    else
+        toggle = true
+        GUI:Notification{
+            Title = "Keybind Update",
+            Text = "Set Silent Aim To True",
+            Duration = 2.5,
+            Callback = function() end
+        }
+    end
+end}
+
+main:Keybind{Name = "Wall Check Keybind",Keybind = Enum.KeyCode.Comma,Description = nil,Callback = function()
+    if settings.ignoreWallCheck == true then
+        settings.ignoreWallCheck = false
+        GUI:Notification{
+            Title = "Keybind Update",
+            Text = "Set Wall Check To False",
+            Duration = 2.5,
+            Callback = function() end
+        }
+    else
+        settings.ignoreWallCheck = true
+        GUI:Notification{
+            Title = "Keybind Update",
+            Text = "Set Wall Check To True",
+            Duration = 2.5,
+            Callback = function() end
+        }
+    end
 end}
 
 esp:Toggle{Name = "ESP",StartingState = false,Description = nil,Callback = function(state)
