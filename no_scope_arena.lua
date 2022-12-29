@@ -26,14 +26,18 @@ local main = GUI:Tab{
 	Name = "Silent Aim",
 	Icon = "rbxassetid://8569322835"
 }
+local fovSettings = GUI:Tab{
+	Name = "FOV Settings",
+	Icon = "rbxassetid://8569322835"
+}
 local esp = GUI:Tab{
 	Name = "ESP",
 	Icon = "rbxassetid://8569322835"
 }
 
-local GuiService = game:GetService("GuiService")
 local plrService = game:GetService("Players")
 local plr =  plrService.LocalPlayer
+local currentCamera = workspace.CurrentCamera
 
 local toggle = false
 local settings = {}
@@ -71,12 +75,36 @@ for i,v in pairs(friends) do
 end
 -- end of friend detection
 
+settings.fovToggle = true
+settings.fovRadius = 50
+
 settings.ignoreFriends = false
 settings.ignoreWallCheck = false
+settings.hitPart = "Head"
+
+local fovCircle = Drawing.new("Circle")
+fovCircle.Thickness = 1
+fovCircle.Filled = false
+fovCircle.Radius = settings.fovRadius
+fovCircle.Position = Vector2.new(currentCamera.ViewportSize.X / 2, currentCamera.ViewportSize.Y / 2)
+
 
 main:Toggle{Name = "Toggle Silent Aim",StartingState = false,Description = nil,Callback = function(state)
 
     toggle = state
+
+end}
+
+main:Toggle{Name = "Use FOV",StartingState = false,Description = "Check FOV Settings tab for customization.",Callback = function(state)
+
+    settings.fovToggle = state
+    fovCircle.Visible = settings.fovToggle
+
+end}
+
+main:Dropdown{Name = "Hit Part",StartingText = ":)",Description = "Default is head",Items = {"Head","UpperTorso","LowerTorso","HumanoidRootPart"},Callback = function(item)
+    
+    settings.hitPart = item
 
 end}
 
@@ -117,7 +145,7 @@ main:Keybind{Name = "Wall Check Keybind",Keybind = Enum.KeyCode.Comma,Descriptio
         settings.ignoreWallCheck = false
         GUI:Notification{
             Title = "Keybind Update",
-            Text = "Set Wall Check To False",
+            Text = "Set Ignore Wall Check To False",
             Duration = 2.5,
             Callback = function() end
         }
@@ -125,11 +153,28 @@ main:Keybind{Name = "Wall Check Keybind",Keybind = Enum.KeyCode.Comma,Descriptio
         settings.ignoreWallCheck = true
         GUI:Notification{
             Title = "Keybind Update",
-            Text = "Set Wall Check To True",
+            Text = "Set Ignore Wall Check To True",
             Duration = 2.5,
             Callback = function() end
         }
     end
+end}
+
+fovSettings:Slider{Name = "Radus",Default = 50,Min = 1,Max = 500,Callback = function(amount)
+    
+    fovCircle.Radius = amount
+    settings.fovRadius = amount
+    
+end}
+
+fovSettings:Slider{Name = "Smoothness",Default = 50,Min = 1,Max = 100,Callback = function(amount)
+    
+    fovCircle.NumSides = amount
+    
+end}
+
+fovSettings:ColorPicker{Style = Mercury.ColorPickerStyles.Legacy,Callback = function(color)
+    fovCircle.Color = color
 end}
 
 esp:Toggle{Name = "ESP",StartingState = false,Description = nil,Callback = function(state)
@@ -146,7 +191,7 @@ local function is_behind_wall(head)
          head.Position
      }
     local ignoreList = {}
-    for i,v in pairs(workspace.CurrentCamera:GetDescendants()) do
+    for i,v in pairs(currentCamera:GetDescendants()) do
         table.insert(ignoreList,v)         
     end
     for i,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
@@ -156,7 +201,7 @@ local function is_behind_wall(head)
         table.insert(ignoreList,v) 
     end
      
-     local returned = workspace.CurrentCamera:GetPartsObscuringTarget(castPoint, ignoreList)
+     local returned = currentCamera:GetPartsObscuringTarget(castPoint, ignoreList)
      
     for _, object in pairs(returned) do
         if object ~= nil then
@@ -173,11 +218,11 @@ local function get_closest()
     for i,v in next, game.Players:GetPlayers() do
         if (settings.ignoreFriends == false or (settings.ignoreFriends == true and not table.find(friends,v.Name))) and v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("Humanoid").Health > 0 and v.Character:FindFirstChild("HumanoidRootPart") then
             local char = v.Character
-            local char_pos, onscreen = game.Workspace.CurrentCamera:worldToViewportPoint( char["Head"].Position)
+            local char_pos, onscreen = currentCamera:worldToViewportPoint( char["Head"].Position)
            
                 local mag = (Vector2.new(mouse.X,mouse.Y) - Vector2.new(char_pos.X,char_pos.Y)).Magnitude
             if onscreen then
-                if mag < dist and (not is_behind_wall(char.Head) or settings.ignoreWallCheck == true) then
+                if mag < dist and (not is_behind_wall(char.Head) or settings.ignoreWallCheck == true) and (settings.fovToggle == true and mag < settings.fovRadius) then
                    dist = mag
                    closest = char
                 end
@@ -199,8 +244,8 @@ gmt.__namecall = newcclosure(function(self,...)
         local plr = get_closest()
         if plr then
             args[2] = plr
-            args[3] = plr.Head
-            args[4] = plr.Head.Position
+            args[3] = plr[settings.hitPart]
+            args[4] = plr[settings.hitPart].Position
         end
         return self.FireServer(self, unpack(args))
     end
