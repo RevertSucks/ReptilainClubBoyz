@@ -75,7 +75,7 @@ for i,v in pairs(friends) do
 end
 -- end of friend detection
 
-settings.fovToggle = true
+settings.fovToggle = false
 settings.fovRadius = 50
 
 settings.ignoreFriends = false
@@ -98,11 +98,10 @@ end}
 main:Toggle{Name = "Use FOV",StartingState = false,Description = "Check FOV Settings tab for customization.",Callback = function(state)
 
     settings.fovToggle = state
-    fovCircle.Visible = settings.fovToggle
 
 end}
 
-main:Dropdown{Name = "Hit Part",StartingText = ":)",Description = "Default is head",Items = {"Head","UpperTorso","LowerTorso","HumanoidRootPart"},Callback = function(item)
+main:Dropdown{Name = "Hit Part",StartingText = "Head",Description = nil,Items = {"Head","UpperTorso","LowerTorso","HumanoidRootPart"},Callback = function(item)
     
     settings.hitPart = item
 
@@ -160,14 +159,20 @@ main:Keybind{Name = "Wall Check Keybind",Keybind = Enum.KeyCode.Comma,Descriptio
     end
 end}
 
-fovSettings:Slider{Name = "Radus",Default = 50,Min = 1,Max = 500,Callback = function(amount)
+fovSettings:Toggle{Name = "Draw FOV",StartingState = false,Description = "Draws the FOV Circle",Callback = function(state)
+
+    fovCircle.Visible = state
+    
+end}
+
+fovSettings:Slider{Name = "Radus",Description="How large the FOV circle is",Default = 50,Min = 1,Max = 500,Callback = function(amount)
     
     fovCircle.Radius = amount
     settings.fovRadius = amount
     
 end}
 
-fovSettings:Slider{Name = "Smoothness",Default = 50,Min = 1,Max = 100,Callback = function(amount)
+fovSettings:Slider{Name = "Smoothness",Description="Visual only",Default = 50,Min = 1,Max = 100,Callback = function(amount)
     
     fovCircle.NumSides = amount
     
@@ -222,9 +227,14 @@ local function get_closest()
            
                 local mag = (Vector2.new(mouse.X,mouse.Y) - Vector2.new(char_pos.X,char_pos.Y)).Magnitude
             if onscreen then
-                if mag < dist and (not is_behind_wall(char.Head) or settings.ignoreWallCheck == true) and (settings.fovToggle == true and mag < settings.fovRadius) then
-                   dist = mag
-                   closest = char
+                if mag < dist and (not is_behind_wall(char.Head) or settings.ignoreWallCheck == true) then
+                    if settings.fovToggle == false then
+                        dist = mag
+                        closest = char
+                    elseif (settings.fovToggle == true and mag < settings.fovRadius) then
+                        dist = mag
+                        closest = char
+                    end
                 end
             end
         end
