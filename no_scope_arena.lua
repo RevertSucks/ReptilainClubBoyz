@@ -188,6 +188,30 @@ esp:Toggle{Name = "ESP",StartingState = false,Description = nil,Callback = funct
     
 end}
 
+esp:Toggle{Name = "Draw Boxes",StartingState = true,Description = nil,Callback = function(state)
+
+    ESP.Boxes = state
+    
+end}
+
+esp:Toggle{Name = "Draw Names",StartingState = true,Description = nil,Callback = function(state)
+
+    ESP.Names = state
+    
+end}
+
+esp:Toggle{Name = "Draw Tracers",StartingState = false,Description = nil,Callback = function(state)
+
+    ESP.Tracers = state
+    
+end}
+
+esp:Toggle{Name = "Boxes Face Camera",StartingState = false,Description = nil,Callback = function(state)
+
+    ESP.FaceCamera = state
+    
+end}
+
 --trigger bot loop
 
 local function is_behind_wall(head)
