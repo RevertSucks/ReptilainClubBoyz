@@ -12,37 +12,36 @@ else
     game.Players.LocalPlayer:kick("Unsupported Executor")
 end
 
-
-local Mercury = loadstring(game:HttpGet("https://raw.githubusercontent.com/RevertSucks/PartyTime/main/archives/mercury.lua"))()
+local library = loadstring(game:GetObjects("rbxassetid://7657867786")[1].Source)()
 local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/RevertSucks/PartyTime/main/archives/kiriot_esp.lua"))()
-    
-local GUI = Mercury:Create{
-    Name = "Party Time",
-    Size = UDim2.fromOffset(600, 400),
-    Theme = Mercury.Themes.Dark,
-    Link = "noscope-arena.exxen"
-}
-local main = GUI:Tab{
-	Name = "Silent Aim",
-	Icon = "rbxassetid://8569322835"
-}
-local fovSettings = GUI:Tab{
-	Name = "FOV Settings",
-	Icon = "rbxassetid://8569322835"
-}
-local esp = GUI:Tab{
-	Name = "ESP",
-	Icon = "rbxassetid://8569322835"
-}
+local isUi = library.subs.Wait -- Only returns if the GUI has not been terminated. For 'while Wait() do' loops
 
+local PepsisWorld = library:CreateWindow({
+Name = "No Scope Arena",
+Themeable = {
+Info = "Script by Exxen#0001"
+}
+})
+
+local GeneralTab = PepsisWorld:CreateTab({
+Name = "Main"
+})
+local silentAimSection = GeneralTab:CreateSection({
+Name = "Silent Aim"
+})
+local fovSection = GeneralTab:CreateSection({
+    Name = "FOV Settings"
+})
+local espSection = GeneralTab:CreateSection({
+    Name = "ESP Settings",
+    Side = "Right"
+})
+
+local settings = {}
+local currentCamera = workspace.CurrentCamera
 local plrService = game:GetService("Players")
 local plr =  plrService.LocalPlayer
-local currentCamera = workspace.CurrentCamera
-
-local toggle = false
-local settings = {}
--- setting up friend detection
-
+local mouse = game.Players.LocalPlayer:GetMouse()
 local friends;
 
 if not (http) then
@@ -57,27 +56,10 @@ else
     })
 end
 
-local mouse = game.Players.LocalPlayer:GetMouse()
-
-GUI:Notification{
-	Title = "Notice",
-	Text = "This script was made by Exxen#0001, do not steal or copy my methods pwease :pleading_face:",
-	Duration = 5,
-	Callback = function() end
-}
-
-if friends["Success"] == true then
-    friends = game:GetService("HttpService"):JSONDecode(friends["Body"])["data"]
-end
-
-for i,v in pairs(friends) do
-    friends[i] = v["name"]
-end
--- end of friend detection
-
 settings.fovToggle = false
 settings.fovRadius = 50
 
+settings.silentToggle = false
 settings.ignoreFriends = false
 settings.ignoreWallCheck = false
 settings.hitPart = "Head"
@@ -88,131 +70,68 @@ fovCircle.Filled = false
 fovCircle.Radius = settings.fovRadius
 fovCircle.Position = Vector2.new(currentCamera.ViewportSize.X / 2, currentCamera.ViewportSize.Y / 2)
 
+--silent aim
 
-main:Toggle{Name = "Toggle Silent Aim",StartingState = false,Description = nil,Callback = function(state)
+silentAimSection:AddToggle({Name = "Silent Aim",Flag = "silent_aim",Callback = function(state)
+    settings.silentToggle = state
+end, Key = true})
 
-    toggle = state
-
-end}
-
-main:Toggle{Name = "Use FOV",StartingState = false,Description = "Check FOV Settings tab for customization.",Callback = function(state)
-
-    settings.fovToggle = state
-
-end}
-
-main:Dropdown{Name = "Hit Part",StartingText = "Head",Description = nil,Items = {"Head","UpperTorso","LowerTorso","HumanoidRootPart"},Callback = function(item)
-    
-    settings.hitPart = item
-
-end}
-
-main:Toggle{Name = "Ignore Friends",StartingState = false,Description = "Automaticaly ignores ROBLOX friends",Callback = function(state)
-
-    settings.ignoreFriends = state
-    
-end}
-
-main:Toggle{Name = "Ignore Wall Check",StartingState = false,Description = "Ignores wall check ( allows for shooting+knifing thru walls inf distance )",Callback = function(state)
-
+silentAimSection:AddToggle({Name = "Ignore Wall Check",Flag = "ignore_wall_check",Callback = function(state)
     settings.ignoreWallCheck = state
-    
-end}
+end, Key = true})
 
-main:Keybind{Name = "Silent Aim Keybind",Keybind = Enum.KeyCode.BackSlash,Description = nil,Callback = function()
-    if toggle == true then
-        toggle = false
-        GUI:Notification{
-            Title = "Keybind Update",
-            Text = "Set Silent Aim To False",
-            Duration = 2.5,
-            Callback = function() end
-        }
-    else
-        toggle = true
-        GUI:Notification{
-            Title = "Keybind Update",
-            Text = "Set Silent Aim To True",
-            Duration = 2.5,
-            Callback = function() end
-        }
-    end
-end}
+silentAimSection:AddToggle({Name = "Ignore ROBLOX Friends",Flag = "ignore_friends",Callback = function(state)
+    settings.ignoreFriends = state
+end})
 
-main:Keybind{Name = "Wall Check Keybind",Keybind = Enum.KeyCode.Comma,Description = nil,Callback = function()
-    if settings.ignoreWallCheck == true then
-        settings.ignoreWallCheck = false
-        GUI:Notification{
-            Title = "Keybind Update",
-            Text = "Set Ignore Wall Check To False",
-            Duration = 2.5,
-            Callback = function() end
-        }
-    else
-        settings.ignoreWallCheck = true
-        GUI:Notification{
-            Title = "Keybind Update",
-            Text = "Set Ignore Wall Check To True",
-            Duration = 2.5,
-            Callback = function() end
-        }
-    end
-end}
+silentAimSection:AddDropdown({Name = "Hitpart",Flag = "hit_part",List = {"Head","UpperTorso","LowerTorso","HumanoidRootPart"},Callback = function(selected, old)
+    settings.hitPart = selected
+end})
 
-fovSettings:Toggle{Name = "Draw FOV",StartingState = false,Description = "Draws the FOV Circle",Callback = function(state)
+--fov
 
+fovSection:AddToggle({Name = "Use FOV",Flag = "use_fov",Callback = function(state)
+    settings.fovToggle = state
+end})
+
+fovSection:AddToggle({Name = "Draw FOV",Flag = "draw_fov",Callback = function(state)
     fovCircle.Visible = state
-    
-end}
+end, Key = true})
 
-fovSettings:Slider{Name = "Radus",Description="How large the FOV circle is",Default = 50,Min = 1,Max = 500,Callback = function(amount)
-    
-    fovCircle.Radius = amount
-    settings.fovRadius = amount
-    
-end}
+fovSection:AddSlider({Name = "Radius",Flag = "fov_radius",Value = 50,Min = 1,Max = 500,Callback = function(Value)
+    settings.fovRadius = Value
+    fovCircle.Radius = Value
+end, Textbox = true})
 
-fovSettings:Slider{Name = "Smoothness",Description="Visual only",Default = 50,Min = 1,Max = 100,Callback = function(amount)
-    
-    fovCircle.NumSides = amount
-    
-end}
+fovSection:AddSlider({Name = "Smoothness",Flag = "fov_smoothness",Value = 50,Min = 1,Max = 100,Callback = function(Value)
+    fovCircle.NumSides = Value
+end, Textbox = true})
 
-fovSettings:ColorPicker{Style = Mercury.ColorPickerStyles.Legacy,Callback = function(color)
-    fovCircle.Color = color
-end}
+fovSection:AddColorPicker({Name = "Color",Flag = "fov_color",Value = Color3.fromRGB(206, 0, 0),Callback = function(value)
+    fovCircle.Color = value
+end})
 
-esp:Toggle{Name = "ESP",StartingState = false,Description = nil,Callback = function(state)
+--esp
 
+espSection:AddToggle({Name = "ESP Toggle",Flag = "use_esp",Callback = function(state)
     ESP:Toggle(state)
-    
-end}
+end})
 
-esp:Toggle{Name = "Draw Boxes",StartingState = true,Description = nil,Callback = function(state)
-
+espSection:AddToggle({Name = "Draw Boxes",Flag = "draw_boxes",Callback = function(state)
     ESP.Boxes = state
-    
-end}
+end})
 
-esp:Toggle{Name = "Draw Names",StartingState = true,Description = nil,Callback = function(state)
-
+espSection:AddToggle({Name = "Draw Names",Flag = "draw_names",Callback = function(state)
     ESP.Names = state
-    
-end}
+end})
 
-esp:Toggle{Name = "Draw Tracers",StartingState = false,Description = nil,Callback = function(state)
-
+espSection:AddToggle({Name = "Draw Tracers",Flag = "draw_tracers",Callback = function(state)
     ESP.Tracers = state
-    
-end}
+end})
 
-esp:Toggle{Name = "Boxes Face Camera",StartingState = false,Description = nil,Callback = function(state)
-
+espSection:AddToggle({Name = "Boxes Face Camera",Flag = "boxes_facecam",Callback = function(state)
     ESP.FaceCamera = state
-    
-end}
-
---trigger bot loop
+end})
 
 local function is_behind_wall(head)
     local hasParts = false
@@ -274,7 +193,7 @@ setreadonly(gmt, false)
 gmt.__namecall = newcclosure(function(self,...)
     local method = getnamecallmethod()
     local args = {...}
-    if tostring(self) == "RemoteEvent" and tostring(method) == "FireServer" and args[1] == "Bullet" and toggle == true then
+    if tostring(self) == "RemoteEvent" and tostring(method) == "FireServer" and args[1] == "Bullet" and settings.silentToggle == true then
         local plr = get_closest()
         if plr then
             args[2] = plr
@@ -288,3 +207,13 @@ gmt.__namecall = newcclosure(function(self,...)
     end
     return OldNamecall(self,...)
 end)
+
+--cleanup :)
+while task.wait(.1) do
+    if isUi() == false then
+        fovCircle.Visible = false
+        ESP:Toggle(false)
+        break
+    end
+    print('lol')
+end
