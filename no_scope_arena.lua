@@ -37,6 +37,11 @@ local espSection = GeneralTab:CreateSection({
     Side = "Right"
 })
 
+local playerSection = GeneralTab:CreateSection({
+    Name = "Humanoid Settings",
+    Side = "Right"
+})
+
 local settings = {}
 local currentCamera = workspace.CurrentCamera
 local plrService = game:GetService("Players")
@@ -63,6 +68,12 @@ settings.silentToggle = false
 settings.ignoreFriends = false
 settings.ignoreWallCheck = false
 settings.hitPart = "Head"
+
+settings.speedToggle = false
+settings.speed = 25
+settings.jumpToggle = false
+settings.jump = 75
+
 
 local fovCircle = Drawing.new("Circle")
 fovCircle.Thickness = 1
@@ -132,6 +143,25 @@ end})
 espSection:AddToggle({Name = "Boxes Face Camera",Flag = "boxes_facecam",Callback = function(state)
     ESP.FaceCamera = state
 end})
+
+--player section
+
+playerSection:AddToggle({Name = "Walkspeed Toggle",Flag = "speed_toggle",Callback = function(state)
+    settings.speedToggle = state
+end, Key = true})
+
+playerSection:AddSlider({Name = "Speed Amount",Flag = "speed_amount",Value = 25,Min = 1,Max = 1000,Callback = function(Value)
+    settings.speed = Value
+end, Textbox = true})
+
+playerSection:AddToggle({Name = "Jumppower Toggle",Flag = "jump_toggle",Callback = function(state)
+    settings.jumpToggle = state
+end, Key = true})
+
+playerSection:AddSlider({Name = "Jump Amount",Flag = "jump_amount",Value = 50,Min = 1,Max = 150,Callback = function(Value)
+    settings.jump = Value
+end, Textbox = true})
+
 
 local function is_behind_wall(head)
     local hasParts = false
@@ -206,6 +236,18 @@ gmt.__namecall = newcclosure(function(self,...)
         return
     end
     return OldNamecall(self,...)
+end)
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if isUi() ~= false then
+        if settings.speedToggle == true then
+            plr.Character.Humanoid.WalkSpeed = settings.speed
+        end
+
+        if settings.jumpToggle == true then
+            plr.Character.Humanoid.JumpPower = settings.jump
+        end
+    end
 end)
 
 --cleanup :)
