@@ -238,15 +238,13 @@ gmt.__namecall = newcclosure(function(self,...)
     return OldNamecall(self,...)
 end)
 
-game:GetService("RunService").RenderStepped:Connect(function()
-    if isUi() ~= false then
-        if settings.speedToggle == true then
-            plr.Character.Humanoid.WalkSpeed = settings.speed
-        end
+local loop = game:GetService("RunService").RenderStepped:Connect(function()
+    if settings.speedToggle == true then
+        plr.Character.Humanoid.WalkSpeed = settings.speed
+    end
 
-        if settings.jumpToggle == true then
-            plr.Character.Humanoid.JumpPower = settings.jump
-        end
+    if settings.jumpToggle == true then
+        plr.Character.Humanoid.JumpPower = settings.jump
     end
 end)
 
@@ -255,6 +253,7 @@ while task.wait(.1) do
     if isUi() == false then
         fovCircle.Visible = false
         ESP:Toggle(false)
+        loop:Disconnect()
         break
     end
     print('lol')
